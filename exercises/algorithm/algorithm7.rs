@@ -2,8 +2,7 @@
 	stack
 	This question requires you to use a stack to achieve a bracket match
 */
-
-// I AM NOT DONE
+use std::collections::HashMap;
 #[derive(Debug)]
 struct Stack<T> {
 	size: usize,
@@ -31,9 +30,10 @@ impl<T> Stack<T> {
 		self.size += 1;
 	}
 	fn pop(&mut self) -> Option<T> {
-		// TODO
-		None
-	}
+        // TODO
+        self.size -= 1;
+        self.data.pop()
+    }
 	fn peek(&self) -> Option<&T> {
 		if 0 == self.size {
 			return None;
@@ -101,8 +101,32 @@ impl<'a, T> Iterator for IterMut<'a, T> {
 
 fn bracket_match(bracket: &str) -> bool
 {
-	//TODO
-	true
+    //TODO
+    let mut arr = ['{','[','('];
+    let mut arr1 = ['}',']',')'];
+    let mut hm = HashMap::new();
+    hm.insert('[', ']');
+    hm.insert('{', '}');
+    hm.insert('(', ')');
+
+    let mut stack= Stack::<char>::new();
+    for i in bracket.chars() {
+        if arr.contains(&i){
+            stack.push(i);
+        }else if !stack.is_empty() {
+            let t = stack.pop().unwrap();
+            if  hm.get(&t).unwrap() != &i {
+                stack.push(t);
+            }
+        }else if arr1.contains(&i) {
+            return false;
+        }
+    }
+    println!("-------{:?}",stack.len());
+    if stack.is_empty(){
+        return true
+    }
+    false
 }
 
 #[cfg(test)]

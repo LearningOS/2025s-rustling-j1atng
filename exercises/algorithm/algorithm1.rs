@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -29,13 +28,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T:PartialOrd + Display + Clone + std::fmt::Debug + Ord> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T:PartialOrd + Display + Clone + std::fmt::Debug + Ord> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -69,15 +68,39 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+    pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+    {
+        let mut list_s = LinkedList::<T>::new();
+
+        unsafe {
+            let mut index = list_a.start.unwrap().as_ptr().as_mut().unwrap();
+            let mut l = vec![];
+
+            loop {
+                println!("-----{}",index.val);
+                l.push(index.val.clone());
+                if index.next.is_none() {
+                    break;
+                }
+                index = index.next.unwrap().as_ptr().as_mut().unwrap();
+            }
+            index = list_b.start.unwrap().as_ptr().as_mut().unwrap();
+            loop {
+                println!("-----{}",index.val);
+                l.push(index.val.clone());
+                if index.next.is_none() {
+                    break;
+                }
+                index = index.next.unwrap().as_ptr().as_mut().unwrap();
+            }
+            l.sort();
+            for i in l{
+                list_s.add(i);
+            }
         }
-	}
+        //TODO
+        list_s
+    }
 }
 
 impl<T> Display for LinkedList<T>

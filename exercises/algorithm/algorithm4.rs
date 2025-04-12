@@ -3,10 +3,9 @@
 	This problem requires you to implement a basic interface for a binary tree
 */
 
-//I AM NOT DONE
 use std::cmp::Ordering;
 use std::fmt::Debug;
-
+use std::collections::VecDeque;
 
 #[derive(Debug)]
 struct TreeNode<T>
@@ -39,25 +38,68 @@ where
     }
 }
 
+
 impl<T> BinarySearchTree<T>
 where
-    T: Ord,
+    T: Ord + Debug,
 {
 
     fn new() -> Self {
         BinarySearchTree { root: None }
     }
 
+    fn Inser_Node(node: &mut TreeNode<T>, value: T) {
+        if value < node.value {
+            if node.left.is_none() {
+                node.left = Some(Box::new(TreeNode::new(value)));
+            }else {
+                Self::Inser_Node(node.left.as_mut().unwrap(),value)
+            }
+            println!("left--->");
+        }else if value > node.value {
+            if node.right.is_none() {
+                node.right = Some(Box::new(TreeNode::new(value)));
+            }else {
+                Self::Inser_Node(node.right.as_mut().unwrap(),value)
+            }
+            println!("right--->");
+        }
+    }
     // Insert a value into the BST
     fn insert(&mut self, value: T) {
         //TODO
+        if self.root.is_none() {
+            self.root = Some(Box::new(TreeNode::new(value)));
+        }else{
+            Self::Inser_Node(self.root.as_mut().unwrap(), value);
+        }
     }
 
     // Search for a value in the BST
     fn search(&self, value: T) -> bool {
         //TODO
-        true
+        let mut queue = VecDeque::<&TreeNode<T>>::new();
+        // let mut node = self.root.as_ref();
+        if let Some(root) = &self.root {
+            queue.push_back(root.as_ref());
+            while let Some(node) = queue.pop_front() {
+                if node.value == value {
+                    return true;
+                }
+                if let Some(left) = &node.left {
+                    queue.push_back(left.as_ref());
+                }
+                if let Some(right) = &node.right {
+                    queue.push_back(right.as_ref());
+                }
+            }
+        }
+        false
     }
+
+
+
+
 }
 
 impl<T> TreeNode<T>
@@ -79,24 +121,24 @@ mod tests {
     fn test_insert_and_search() {
         let mut bst = BinarySearchTree::new();
 
-        
+
         assert_eq!(bst.search(1), false);
 
-        
+
         bst.insert(5);
         bst.insert(3);
         bst.insert(7);
         bst.insert(2);
         bst.insert(4);
 
-        
+
         assert_eq!(bst.search(5), true);
         assert_eq!(bst.search(3), true);
         assert_eq!(bst.search(7), true);
         assert_eq!(bst.search(2), true);
         assert_eq!(bst.search(4), true);
 
-        
+
         assert_eq!(bst.search(1), false);
         assert_eq!(bst.search(6), false);
     }
@@ -105,14 +147,12 @@ mod tests {
     fn test_insert_duplicate() {
         let mut bst = BinarySearchTree::new();
 
-        
+
         bst.insert(1);
         bst.insert(1);
 
-        
         assert_eq!(bst.search(1), true);
 
-        
         match bst.root {
             Some(ref node) => {
                 assert!(node.left.is_none());
@@ -121,6 +161,4 @@ mod tests {
             None => panic!("Root should not be None after insertion"),
         }
     }
-}    
-
-
+}
